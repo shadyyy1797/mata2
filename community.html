@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物品管家 - 社区协作</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0C0F14;
+            color: #FFFFFF;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 24px 0;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+        
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(23, 26, 34, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #2E3138;
+            padding-bottom: 20px;
+            z-index: 100;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #9599A8;
+            width: 20%;
+        }
+        
+        .tab-item.active {
+            color: #00b36d;
+        }
+        
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+        
+        .content-area {
+            height: calc(100vh - 127px);
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .main-card {
+            background-color: #171A22;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid #2E3138;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: #1F232D;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            border-radius: 10px;
+            color: #9599A8;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background-color: #00b36d;
+            color: #FFFFFF;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(0, 179, 109, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: #00b36d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn-outline {
+            background-color: rgba(0, 179, 109, 0.15);
+            color: #00b36d;
+            border: 1px solid #00b36d;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: rgba(0, 179, 109, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00b36d;
+            font-size: 20px;
+        }
+        
+        .item-gallery {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .gallery-item {
+            flex: 1;
+            height: 80px;
+            background-color: #1F232D;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9599A8;
+            font-size: 24px;
+            border: 1px solid #2E3138;
+        }
+        
+        .badge {
+            background-color: rgba(0, 179, 109, 0.15);
+            color: #00b36d;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-buttons .btn-primary,
+        .action-buttons .btn-outline {
+            flex: 1;
+        }
+        
+        .time-bank-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .time-bank-stat {
+            text-align: center;
+        }
+        
+        .time-bank-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00b36d;
+            margin-bottom: 2px;
+        }
+        
+        .time-bank-label {
+            font-size: 12px;
+            color: #9599A8;
+        }
+        
+        .museum-icon {
+            font-size: 48px;
+            color: #00b36d;
+            margin-bottom: 10px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 24px;
+            color: #FFFFFF;
+        }
+        
+        .service-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: #1F232D;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #2E3138;
+        }
+        
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: rgba(0, 179, 109, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00b36d;
+            font-size: 20px;
+        }
+        
+        .service-content {
+            flex: 1;
+        }
+        
+        .service-title {
+            font-weight: 500;
+            margin-bottom: 2px;
+            color: #FFFFFF;
+        }
+        
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9599A8;
+        }
+        
+        /* 助老互助服务样式 */
+        .help-card {
+            display: flex;
+            gap: 16px;
+            background-color: #1F232D;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #2E3138;
+        }
+        
+        .help-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background-color: rgba(0, 179, 109, 0.15);
+            color: #00b36d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .help-content {
+            flex: 1;
+        }
+        
+        .help-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #FFFFFF;
+        }
+        
+        .help-schedule {
+            font-size: 14px;
+            color: #9599A8;
+            margin-bottom: 4px;
+        }
+        
+        .help-provider {
+            font-size: 14px;
+            color: #9599A8;
+            margin-bottom: 10px;
+        }
+        
+        .help-button {
+            background-color: rgba(0, 179, 109, 0.15);
+            color: #00b36d;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .empty-state-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(0, 179, 109, 0.15);
+            color: #00b36d;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+            border: 1px solid #2E3138;
+        }
+        
+        .empty-state-message i {
+            font-size: 20px;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: #FFFFFF;
+        }
+        
+        .user-distance {
+            font-size: 12px;
+            color: #9599A8;
+        }
+        
+        .user-separator {
+            font-size: 12px;
+            color: #9599A8;
+            margin: 0 4px;
+        }
+        
+        .user-time {
+            font-size: 12px;
+            color: #9599A8;
+        }
+        
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title-sm {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+        
+        .view-all {
+            font-size: 14px;
+            color: #00b36d;
+        }
+        
+        /* 适老化增强样式 */
+        *:focus {
+            outline: 3px solid #00b36d;
+            outline-offset: 2px;
+        }
+        
+        /* 增加触摸反馈 */
+        .btn-primary:active,
+        .btn-outline:active,
+        .service-card:active,
+        .help-button:active,
+        .tab:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- iOS Status Bar -->
+    <div class="status-bar">
+        <div>9:41</div>
+        <div>
+            <span><i class="fas fa-signal"></i></span>
+            <span style="margin-left: 5px;"><i class="fas fa-wifi"></i></span>
+            <span style="margin-left: 5px;"><i class="fas fa-battery-full"></i></span>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="page-header">
+            <div class="page-title">社区互助</div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active">相邻物品</div>
+            <div class="tab">记忆博物馆</div>
+            <div class="tab">记忆银行</div>
+            <div class="tab">助老互助</div>
+        </div>
+        
+        <div class="section-title">附近的物品 (500米内)</div>
+        
+        <div class="main-card">
+            <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div class="user-name">张阿姨</div>
+                    <div>
+                        <span class="user-distance">300米</span>
+                        <span class="user-separator">·</span>
+                        <span class="user-time">3分钟前</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="font-size: 14px; margin-bottom: 12px; color: #FFFFFF;">闲置的毛线和编织工具，希望能送给喜欢编织的邻居</p>
+            
+            <div class="item-gallery">
+                <div class="gallery-item">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="gallery-item">
+                    <i class="fas fa-image"></i>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-primary">
+                    <i class="fas fa-comment-dots" style="margin-right: 6px;"></i> 联系张阿姨
+                </button>
+                <button class="btn-outline">
+                    <i class="fas fa-bookmark" style="margin-right: 6px;"></i> 收藏
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-card">
+            <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                <div class="user-avatar" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div class="user-name">王爷爷</div>
+                    <div>
+                        <span class="user-distance">500米</span>
+                        <span class="user-separator">·</span>
+                        <span class="user-time">昨天</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="font-size: 14px; margin-bottom: 12px; color: #FFFFFF;">80年代的老唱片，希望找到懂得欣赏的收藏者</p>
+            
+            <div class="item-gallery">
+                <div class="gallery-item">
+                    <i class="fas fa-image"></i>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-primary">
+                    <i class="fas fa-comment-dots" style="margin-right: 6px;"></i> 联系王爷爷
+                </button>
+                <button class="btn-outline">
+                    <i class="fas fa-bookmark" style="margin-right: 6px;"></i> 收藏
+                </button>
+            </div>
+        </div>
+        
+        <div class="section-title">记忆博物馆</div>
+        
+        <div class="main-card text-center" style="padding: 30px 20px;">
+            <div class="museum-icon">
+                <i class="fas fa-museum"></i>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #FFFFFF;">数字化物品展览</h3>
+            <p style="font-size: 14px; color: #9599A8; margin-bottom: 20px;">已有235件物品在展出</p>
+            <button class="btn-primary">
+                <i class="fas fa-walking" style="margin-right: 6px;"></i> 参观博物馆
+            </button>
+        </div>
+        
+        <div class="section-title">记忆银行</div>
+        
+        <div class="main-card">
+            <div class="time-bank-stats">
+                <div class="time-bank-stat">
+                    <div class="time-bank-value">350</div>
+                    <div class="time-bank-label">我的积分</div>
+                </div>
+                <div class="time-bank-stat">
+                    <div class="time-bank-value">3.5小时</div>
+                    <div class="time-bank-label">已贡献时间</div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" style="width: 100%;">
+                <i class="fas fa-hands-helping" style="margin-right: 6px;"></i> 申请帮助或提供服务
+            </button>
+        </div>
+        
+        <div class="main-card">
+            <h3 style="font-weight: 600; margin-bottom: 16px; font-size: 18px; color: #FFFFFF;">附近可提供的服务</h3>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="service-content">
+                    <div class="service-title">家具组装帮助</div>
+                    <div class="service-meta">
+                        <div>李师傅</div>
+                        <div>200米 · 100积分/小时</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon" style="background-color: rgba(255, 159, 10, 0.15); color: #FF9F0A;">
+                    <i class="fas fa-broom"></i>
+                </div>
+                <div class="service-content">
+                    <div class="service-title">家居整理指导</div>
+                    <div class="service-meta">
+                        <div>赵阿姨</div>
+                        <div>350米 · 80积分/小时</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
+                    <i class="fas fa-laptop"></i>
+                </div>
+                <div class="service-content">
+                    <div class="service-title">电子设备使用教学</div>
+                    <div class="service-meta">
+                        <div>小王</div>
+                        <div>450米 · 120积分/小时</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 助老互助内容 -->
+        <div id="elder-help-section" style="display: none;">
+            <div class="section-title">助老互助服务</div>
+            
+            <div class="help-card">
+                <div class="help-icon">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <div class="help-content">
+                    <div class="help-title">代办服务</div>
+                    <div class="help-schedule">每周三、周五上午</div>
+                    <div class="help-provider">提供者: 社区志愿者小组</div>
+                    <button class="help-button">预约服务</button>
+                </div>
+            </div>
+            
+            <div class="help-card">
+                <div class="help-icon" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <div class="help-content">
+                    <div class="help-title">亲情通话</div>
+                    <div class="help-schedule">每天18:00-20:00</div>
+                    <div class="help-provider">提供者: 大学生志愿者</div>
+                    <button class="help-button">申请陪伴</button>
+                </div>
+            </div>
+            
+            <div class="help-card">
+                <div class="help-icon" style="background-color: rgba(255, 159, 10, 0.15); color: #FF9F0A;">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="help-content">
+                    <div class="help-title">助餐服务</div>
+                    <div class="help-schedule">每天11:30-12:30送餐</div>
+                    <div class="help-provider">提供者: 社区服务中心</div>
+                    <button class="help-button">预订午餐</button>
+                </div>
+            </div>
+            
+            <div class="help-card">
+                <div class="help-icon" style="background-color: rgba(255, 69, 58, 0.15); color: #FF453A;">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="help-content">
+                    <div class="help-title">健康巡诊</div>
+                    <div class="help-schedule">每周一上门检查</div>
+                    <div class="help-provider">提供者: 社区医疗站</div>
+                    <button class="help-button">预约巡诊</button>
+                </div>
+            </div>
+            
+            <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <div>所有助老服务均为免费提供，由社区志愿者和专业人员支持</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- iOS Tab Bar -->
+    <div class="tab-bar">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="space.html" class="tab-item">
+            <i class="fas fa-cubes"></i>
+            <span>空间</span>
+        </a>
+        <a href="items.html" class="tab-item">
+            <i class="fas fa-box"></i>
+            <span>物品</span>
+        </a>
+        <a href="community.html" class="tab-item active">
+            <i class="fas fa-users"></i>
+            <span>社区</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        // 简化的标签切换逻辑
+        document.querySelectorAll('.tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // 添加当前活动状态
+                tab.classList.add('active');
+                
+                // 隐藏所有内容但保持默认内容显示
+                // 这里我们仅控制助老互助部分的显示/隐藏
+                document.getElementById('elder-help-section').style.display = 'none';
+                
+                // 显示对应内容
+                if (index === 3) {
+                    document.getElementById('elder-help-section').style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物品管家 - 健康守护</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0C0F14;
+            color: #FFFFFF;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 24px 0;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+        
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: rgba(23, 26, 34, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #2E3138;
+            padding-bottom: 20px;
+            z-index: 100;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #9599A8;
+            width: 20%;
+        }
+        
+        .tab-item.active {
+            color: #00b36d;
+        }
+        
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+        
+        .content-area {
+            height: calc(100vh - 127px);
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: #1F232D;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            border-radius: 10px;
+            color: #9599A8;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background-color: #00b36d;
+            color: #FFFFFF;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(0, 179, 109, 0.25);
+        }
+        
+        .metric-card {
+            background-color: #171A22;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: 1px solid #2E3138;
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+        
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: rgba(0, 179, 109, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00b36d;
+            font-size: 20px;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #FFFFFF;
+        }
+        
+        .metric-description {
+            font-size: 14px;
+            color: #9599A8;
+        }
+        
+        .metric-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .metric-col {
+            flex: 1;
+        }
+        
+        .behavior-card {
+            background-color: #171A22;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #2E3138;
+        }
+        
+        .behavior-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: rgba(0, 179, 109, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00b36d;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .behavior-content {
+            flex: 1;
+        }
+        
+        .behavior-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+        }
+        
+        .behavior-description {
+            font-size: 14px;
+            color: #9599A8;
+            margin-bottom: 10px;
+        }
+        
+        .behavior-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9599A8;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 5px;
+            background-color: rgba(0, 179, 109, 0.15);
+            color: #00b36d;
+        }
+        
+        .badge-warning {
+            background-color: rgba(255, 159, 10, 0.15);
+            color: #FF9F0A;
+        }
+        
+        .badge-danger {
+            background-color: rgba(255, 69, 58, 0.15);
+            color: #FF453A;
+        }
+        
+        .emergency-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background-color: rgba(255, 69, 58, 0.9);
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(255, 69, 58, 0.25);
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 24px;
+            color: #FFFFFF;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 适老化增强样式 */
+        *:focus {
+            outline: 3px solid #00b36d;
+            outline-offset: 2px;
+        }
+        
+        /* 增加触摸反馈 */
+        .emergency-button:active,
+        .behavior-card:active,
+        .tab:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- iOS Status Bar -->
+    <div class="status-bar">
+        <div>9:41</div>
+        <div>
+            <span><i class="fas fa-signal"></i></span>
+            <span style="margin-left: 5px;"><i class="fas fa-wifi"></i></span>
+            <span style="margin-left: 5px;"><i class="fas fa-battery-full"></i></span>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="page-header">
+            <div class="page-title">健康守护</div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active">环境指标</div>
+            <div class="tab">行为分析</div>
+            <div class="tab">健康报告</div>
+        </div>
+        
+        <!-- 环境指标部分 -->
+        <div id="env-indicators">
+            <div class="section-title">当前环境指标</div>
+            
+            <div class="metric-row">
+                <div class="metric-col">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">室内温度</div>
+                            <div class="metric-icon">
+                                <i class="fas fa-thermometer-half"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">24.5°C</div>
+                        <div class="metric-description">适宜温度范围: 22-26°C</div>
+                    </div>
+                </div>
+                
+                <div class="metric-col">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">室内湿度</div>
+                            <div class="metric-icon" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">45%</div>
+                        <div class="metric-description">适宜湿度范围: 40-60%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-row">
+                <div class="metric-col">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">空气质量</div>
+                            <div class="metric-icon" style="background-color: rgba(255, 159, 10, 0.15); color: #FF9F0A;">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">87</div>
+                        <div class="metric-description">
+                            <span class="badge badge-warning">轻度污染</span>
+                            建议开窗通风
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metric-col">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">噪音水平</div>
+                            <div class="metric-icon" style="background-color: rgba(255, 69, 58, 0.15); color: #FF453A;">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">38dB</div>
+                        <div class="metric-description">安静环境 (低于45dB)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="emergency-button">
+                <i class="fas fa-exclamation-triangle"></i>
+                紧急呼叫求助
+            </button>
+        </div>
+        
+        <!-- 行为分析部分 -->
+        <div id="behavior-analysis" class="hidden">
+            <div class="section-title">今日行为分析</div>
+            
+            <div class="behavior-card">
+                <div class="behavior-icon">
+                    <i class="fas fa-walking"></i>
+                </div>
+                <div class="behavior-content">
+                    <div class="behavior-title">移动距离减少</div>
+                    <div class="behavior-description">与昨日相比，室内走动距离减少了40%，可能需要适当增加活动</div>
+                    <div class="behavior-meta">
+                        <div>
+                            <span class="badge badge-warning">需要注意</span>
+                        </div>
+                        <div>10:30 检测</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="behavior-card">
+                <div class="behavior-icon" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div class="behavior-content">
+                    <div class="behavior-title">睡眠质量良好</div>
+                    <div class="behavior-description">昨晚睡眠时间7.5小时，深度睡眠占比35%，睡眠质量良好</div>
+                    <div class="behavior-meta">
+                        <div>
+                            <span class="badge">状态良好</span>
+                        </div>
+                        <div>08:15 检测</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="behavior-card">
+                <div class="behavior-icon" style="background-color: rgba(255, 69, 58, 0.15); color: #FF453A;">
+                    <i class="fas fa-shower"></i>
+                </div>
+                <div class="behavior-content">
+                    <div class="behavior-title">洗漱活动延迟</div>
+                    <div class="behavior-description">今早洗漱活动较往常延迟了45分钟，请注意日常习惯的改变</div>
+                    <div class="behavior-meta">
+                        <div>
+                            <span class="badge badge-danger">需要关注</span>
+                        </div>
+                        <div>09:45 检测</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="emergency-button">
+                <i class="fas fa-exclamation-triangle"></i>
+                紧急呼叫求助
+            </button>
+        </div>
+        
+        <!-- 健康报告部分 -->
+        <div id="health-reports" class="hidden">
+            <div class="section-title">健康状况汇总</div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">本周健康评分</div>
+                    <div class="metric-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                </div>
+                <div class="metric-value">85/100</div>
+                <div class="metric-description">较上周 <i class="fas fa-arrow-up" style="color: #00b36d;"></i> 5分</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">健康趋势分析</div>
+                </div>
+                <div style="height: 120px; display: flex; align-items: center; justify-content: center; color: #9599A8;">
+                    <i class="fas fa-chart-line" style="font-size: 48px; margin-right: 15px;"></i>
+                    <div>健康曲线趋势图</div>
+                </div>
+            </div>
+            
+            <div class="behavior-card">
+                <div class="behavior-icon" style="background-color: rgba(0, 179, 109, 0.15); color: #00b36d;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="behavior-content">
+                    <div class="behavior-title">健康建议</div>
+                    <div class="behavior-description">
+                        1. 每天保持30分钟以上的适度活动<br>
+                        2. 注意调整室内空气质量<br>
+                        3. 保持规律的生活作息
+                    </div>
+                </div>
+            </div>
+            
+            <button class="emergency-button">
+                <i class="fas fa-exclamation-triangle"></i>
+                紧急呼叫求助
+            </button>
+        </div>
+    </div>
+    
+    <!-- iOS Tab Bar -->
+    <div class="tab-bar">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="space.html" class="tab-item">
+            <i class="fas fa-cubes"></i>
+            <span>空间</span>
+        </a>
+        <a href="items.html" class="tab-item">
+            <i class="fas fa-box"></i>
+            <span>物品</span>
+        </a>
+        <a href="community.html" class="tab-item">
+            <i class="fas fa-users"></i>
+            <span>社区</span>
+        </a>
+        <a href="profile.html" class="tab-item active">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        // 简单的标签切换逻辑
+        document.querySelectorAll('.tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // 添加当前活动状态
+                tab.classList.add('active');
+                
+                // 隐藏所有内容区域
+                document.getElementById('env-indicators').classList.add('hidden');
+                document.getElementById('behavior-analysis').classList.add('hidden');
+                document.getElementById('health-reports').classList.add('hidden');
+                
+                // 显示当前选中的内容区域
+                if (index === 0) {
+                    document.getElementById('env-indicators').classList.remove('hidden');
+                } else if (index === 1) {
+                    document.getElementById('behavior-analysis').classList.remove('hidden');
+                } else if (index === 2) {
+                    document.getElementById('health-reports').classList.remove('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
