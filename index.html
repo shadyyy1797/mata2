@@ -8,37 +8,104 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-color: #0C0F14;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #FFFFFF;
+            background: linear-gradient(135deg, #0C0F14 0%, #171A22 100%);
             font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #FFFFFF;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 179, 109, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(94, 92, 230, 0.1) 0%, transparent 25%);
+            z-index: -1;
+            opacity: 0.8;
+        }
+        
+        .screen-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            padding: 40px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .phone-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .phone-wrapper:hover {
+            transform: translateY(-10px);
+        }
+        
+        .screen-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #00b36d;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .screen-title:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background-color: #00b36d;
+            border-radius: 3px;
         }
         
         .iphone-frame {
-            width: 390px;
-            height: 844px;
+            width: 320px;
+            height: 650px;
             background-color: #000000;
-            border-radius: 55px;
-            padding: 15px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 45px;
+            padding: 12px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                0 0 0 2px rgba(255, 255, 255, 0.05),
+                inset 0 0 10px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .iphone-frame:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 45px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            pointer-events: none;
         }
         
         .screen {
             width: 100%;
             height: 100%;
             background-color: #0C0F14;
-            border-radius: 40px;
+            border-radius: 35px;
             overflow: hidden;
             position: relative;
-            -webkit-text-size-adjust: 100%;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
         
         .dynamic-island {
@@ -46,11 +113,12 @@
             top: 12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 126px;
-            height: 37px;
+            width: 120px;
+            height: 35px;
             background-color: #000;
             border-radius: 20px;
             z-index: 100;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
         
         .iframe-container {
@@ -59,306 +127,472 @@
             border: none;
         }
         
-        .screens-list {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background-color: rgba(12, 15, 20, 0.9);
-            padding: 8px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            border: 1px solid #2E3138;
-        }
-        
-        #screenSelector {
-            background-color: #171A22;
-            color: #FFFFFF;
-            border: 1px solid #2E3138;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-        
-        #screenSelector option {
-            background-color: #171A22;
-            color: #FFFFFF;
-        }
-        
-        .navigation {
-            position: absolute;
-            bottom: 35px;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            background-color: rgba(23, 26, 34, 0.9);
+        .header {
+            background: rgba(12, 15, 20, 0.85);
             backdrop-filter: blur(10px);
-            border-top: 1px solid #2E3138;
-            padding: 10px 0;
-            z-index: 10;
-        }
-        
-        .nav-button {
-            background-color: transparent;
-            color: #9599A8;
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-height: 44px;
-            min-width: 44px;
-        }
-        
-        .nav-button.active {
-            color: #00b36d;
-        }
-        
-        .nav-button:active {
-            transform: scale(0.95);
-            background-color: rgba(0, 179, 109, 0.1);
-        }
-        
-        /* 辅助功能按钮样式 */
-        .accessibility-buttons {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(46, 49, 56, 0.5);
+            position: sticky;
+            top: 0;
             z-index: 1000;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
         }
         
-        .a11y-button {
-            width: 44px;
-            height: 44px;
-            border-radius: 22px;
-            background-color: #00b36d;
-            color: white;
-            border: none;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .title {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #FFFFFF, #00b36d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .title span {
+            font-weight: 500;
+            font-size: 20px;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .control-button {
+            background: rgba(23, 26, 34, 0.8);
+            color: #FFFFFF;
+            border: 1px solid rgba(46, 49, 56, 0.8);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+        }
+        
+        .control-button:hover {
+            background-color: #00b36d;
+            border-color: #00b36d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 179, 109, 0.3);
+        }
+        
+        .control-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 179, 109, 0.2);
+        }
+        
+        .control-button i {
+            font-size: 16px;
+        }
+        
+        .screen-description {
+            max-width: 320px;
+            margin-top: 20px;
+            background: rgba(23, 26, 34, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 16px;
+            padding: 15px;
+            font-size: 14px;
+            border: 1px solid rgba(46, 49, 56, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .features-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .features-list li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 18px;
+            opacity: 0.9;
+        }
+        
+        .features-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #00b36d;
             font-size: 18px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .features-list li:hover {
+            opacity: 1;
+            transform: translateX(3px);
+            transition: all 0.2s ease;
+        }
+        
+        .footer {
+            background: rgba(12, 15, 20, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(46, 49, 56, 0.5);
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            color: #9599A8;
+            font-size: 14px;
+        }
+        
+        .screen-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 40px;
+            flex-wrap: wrap;
+        }
+        
+        .screen-nav-item {
+            background: rgba(23, 26, 34, 0.7);
+            border: 1px solid rgba(46, 49, 56, 0.8);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         
-        .a11y-button:hover {
-            background-color: #009c5d;
-            transform: scale(1.05);
+        .screen-nav-item.active {
+            background-color: #00b36d;
+            border-color: #00b36d;
+            box-shadow: 0 5px 15px rgba(0, 179, 109, 0.3);
         }
         
-        .a11y-button:active {
-            transform: scale(0.95);
+        .screen-nav-item:hover:not(.active) {
+            background: rgba(46, 49, 56, 0.8);
+            transform: translateY(-2px);
         }
         
-        .a11y-button.active {
-            background-color: #ff9f0a;
+        .hidden {
+            display: none !important;
         }
         
-        *:focus {
-            outline: 3px solid #00b36d;
-            outline-offset: 2px;
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
         
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation: none !important;
-                transition: none !important;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .power-button {
+            position: absolute;
+            right: -2px;
+            top: 120px;
+            width: 3px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 2px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        
+        .volume-button {
+            position: absolute;
+            left: -2px;
+            top: 100px;
+            width: 3px;
+            height: 50px;
+            background-color: #333;
+            border-radius: 2px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .screen-container {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .screen-nav {
+                gap: 5px;
+            }
+            
+            .screen-nav-item {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .title {
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="screens-list">
-        <select id="screenSelector" onchange="changeScreen()">
-            <option value="welcome.html">欢迎/登录界面</option>
-            <option value="home.html">主页/仪表盘</option>
-            <option value="space.html">智能空间管理</option>
-            <option value="items.html">物品生命周期管理</option>
-            <option value="community.html">社区协作网络</option>
-            <option value="health.html">健康守护系统</option>
-            <option value="profile.html">个人资料/设置</option>
-        </select>
+    <div class="bg-pattern"></div>
+    
+    <header class="header">
+        <div class="header-content">
+            <h1 class="title">物品管家 <span>老年人物品囤积解决方案</span></h1>
+            <div class="controls">
+                <button id="toggleAllBtn" class="control-button">
+                    <i class="fas fa-th-large"></i>
+                    查看全部
+                </button>
+                <button id="toggleDescBtn" class="control-button">
+                    <i class="fas fa-info-circle"></i>
+                    功能说明
+                </button>
+                <button id="presentationBtn" class="control-button">
+                    <i class="fas fa-play"></i>
+                    演示模式
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="screen-nav">
+        <button class="screen-nav-item active" data-screen="all">全部界面</button>
+        <button class="screen-nav-item" data-screen="welcome">欢迎/登录</button>
+        <button class="screen-nav-item" data-screen="home">主页/仪表盘</button>
+        <button class="screen-nav-item" data-screen="space">智能空间</button>
+        <button class="screen-nav-item" data-screen="health">健康守护</button>
+        <button class="screen-nav-item" data-screen="profile">个人设置</button>
     </div>
     
-    <!-- 添加辅助功能快捷按钮 -->
-    <div class="accessibility-buttons">
-        <button class="a11y-button" onclick="increaseFont()" aria-label="增大字体">
-            <i class="fas fa-text-height"></i>
-        </button>
-        <button class="a11y-button" onclick="toggleHighContrast()" aria-label="高对比度">
-            <i class="fas fa-adjust"></i>
-        </button>
-        <button class="a11y-button" onclick="toggleSimpleMode()" aria-label="简化界面">
-            <i class="fas fa-eye"></i>
-        </button>
-        <button class="a11y-button" onclick="toggleVoiceAssistant()" aria-label="语音辅助">
-            <i class="fas fa-volume-up"></i>
-        </button>
+    <div class="screen-container">
+        <!-- 欢迎/登录界面 -->
+        <div class="phone-wrapper" data-screen-type="welcome">
+            <h2 class="screen-title">欢迎/登录界面</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="volume-button"></div>
+                <div class="power-button"></div>
+                <div class="screen">
+                    <iframe class="iframe-container" src="welcome.html" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="screen-description">
+                <strong>主要功能:</strong>
+                <ul class="features-list">
+                    <li>用户登录与认证</li>
+                    <li>适老化模式切换</li>
+                    <li>多种快捷登录选项</li>
+                    <li>应用简介与核心功能展示</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 主页/仪表盘 -->
+        <div class="phone-wrapper" data-screen-type="home">
+            <h2 class="screen-title">主页/仪表盘</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="volume-button"></div>
+                <div class="power-button"></div>
+                <div class="screen">
+                    <iframe class="iframe-container" src="home.html" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="screen-description">
+                <strong>主要功能:</strong>
+                <ul class="features-list">
+                    <li>物品管理概览与统计数据</li>
+                    <li>物品整理进度与对比</li>
+                    <li>快捷功能入口</li>
+                    <li>今日提醒与重要事项</li>
+                    <li>紧急求助按钮</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 智能空间管理 -->
+        <div class="phone-wrapper" data-screen-type="space">
+            <h2 class="screen-title">智能空间管理</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="volume-button"></div>
+                <div class="power-button"></div>
+                <div class="screen">
+                    <iframe class="iframe-container" src="space.html" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="screen-description">
+                <strong>主要功能:</strong>
+                <ul class="features-list">
+                    <li>3D空间模型展示</li>
+                    <li>房间风险热力图分析</li>
+                    <li>物品囤积风险评估</li>
+                    <li>智能收纳建议</li>
+                    <li>房间扫描与空间优化</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 健康守护系统 -->
+        <div class="phone-wrapper" data-screen-type="health">
+            <h2 class="screen-title">健康守护系统</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="volume-button"></div>
+                <div class="power-button"></div>
+                <div class="screen">
+                    <iframe class="iframe-container" src="health.html" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="screen-description">
+                <strong>主要功能:</strong>
+                <ul class="features-list">
+                    <li>室内环境指标监测</li>
+                    <li>用户行为分析与提醒</li>
+                    <li>健康报告与趋势分析</li>
+                    <li>紧急呼叫求助功能</li>
+                    <li>健康建议与改善方案</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 个人资料/设置 -->
+        <div class="phone-wrapper" data-screen-type="profile">
+            <h2 class="screen-title">个人资料/设置</h2>
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="volume-button"></div>
+                <div class="power-button"></div>
+                <div class="screen">
+                    <iframe class="iframe-container" src="profile.html" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="screen-description">
+                <strong>主要功能:</strong>
+                <ul class="features-list">
+                    <li>用户个人资料管理</li>
+                    <li>安全与隐私设置</li>
+                    <li>紧急联系人配置</li>
+                    <li>界面显示与辅助选项</li>
+                    <li>语言与通知设置</li>
+                </ul>
+            </div>
+        </div>
     </div>
     
-    <div class="iphone-frame">
-        <div class="dynamic-island"></div>
-        <div class="screen">
-            <iframe id="screenFrame" class="iframe-container" src="welcome.html" frameborder="0"></iframe>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>物品管家 — 为老年人设计的智能物品管理应用 © 2023</p>
         </div>
-        <div class="navigation">
-            <button class="nav-button" onclick="goBack()">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <button class="nav-button" onclick="goHome()">
-                <i class="fas fa-home"></i>
-            </button>
-        </div>
-    </div>
+    </footer>
     
     <script>
-        function changeScreen() {
-            const selector = document.getElementById('screenSelector');
-            const frame = document.getElementById('screenFrame');
-            frame.src = selector.value;
-        }
-        
-        function goBack() {
-            const frame = document.getElementById('screenFrame');
-            frame.contentWindow.history.back();
-        }
-        
-        function goHome() {
-            const frame = document.getElementById('screenFrame');
-            frame.src = 'home.html';
-            document.getElementById('screenSelector').value = 'home.html';
-        }
-        
-        // 辅助功能相关函数
-        let currentFontSize = 16;
-        let isHighContrast = false;
-        let isSimpleMode = false;
-        let isVoiceAssistant = false;
-        
-        function increaseFont() {
-            const frame = document.getElementById('screenFrame');
-            if (currentFontSize < 24) {
-                currentFontSize += 2;
-                try {
-                    frame.contentDocument.body.style.fontSize = currentFontSize + 'px';
-                    // 更新内容字体
-                    let items = frame.contentDocument.querySelectorAll('.item-title, .feature-title, .section-title, h1, h2');
-                    items.forEach(item => {
-                        let currentSize = parseInt(window.getComputedStyle(item).fontSize);
-                        item.style.fontSize = (currentSize + 2) + 'px';
-                    });
-                } catch (e) {
-                    console.error('无法访问iframe内容:', e);
-                }
-            }
+        // 功能说明切换
+        document.getElementById('toggleDescBtn').addEventListener('click', function() {
+            const descriptions = document.querySelectorAll('.screen-description');
+            const isHidden = descriptions[0].style.display === 'none';
             
-            // 切换按钮状态
-            document.querySelector('[onclick="increaseFont()"]').classList.toggle('active');
-            setTimeout(() => {
-                document.querySelector('[onclick="increaseFont()"]').classList.toggle('active');
-            }, 1000);
-        }
-        
-        function toggleHighContrast() {
-            const button = document.querySelector('[onclick="toggleHighContrast()"]');
-            isHighContrast = !isHighContrast;
-            
-            if (isHighContrast) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-            
-            const frame = document.getElementById('screenFrame');
-            try {
-                if (isHighContrast) {
-                    // 添加高对比度样式
-                    let style = frame.contentDocument.createElement('style');
-                    style.id = 'high-contrast-style';
-                    style.textContent = `
-                        body, .main-card, .content-area { background-color: #000 !important; color: #fff !important; }
-                        .item-card, .feature-card, .setting-item { background-color: #222 !important; color: #fff !important; border: 1px solid #444 !important; }
-                        .item-meta, .feature-desc, .setting-desc { color: #ccc !important; }
-                        .tab-bar, .status-bar { background-color: #111 !important; color: #fff !important; }
-                        .tab-item { color: #ccc !important; }
-                        .tab-item.active { color: #ffdd00 !important; }
-                        button, .btn-primary { background-color: #ffdd00 !important; color: #000 !important; border: 2px solid #fff !important; }
-                    `;
-                    frame.contentDocument.head.appendChild(style);
+            descriptions.forEach(desc => {
+                if (isHidden) {
+                    desc.style.display = 'block';
+                    desc.classList.add('fade-in');
                 } else {
-                    // 移除高对比度样式
-                    let style = frame.contentDocument.getElementById('high-contrast-style');
-                    if (style) style.remove();
+                    desc.style.display = 'none';
                 }
-            } catch (e) {
-                console.error('无法访问iframe内容:', e);
-            }
-        }
+            });
+            
+            this.innerHTML = isHidden 
+                ? '<i class="fas fa-info-circle"></i> 隐藏功能'
+                : '<i class="fas fa-info-circle"></i> 功能说明';
+        });
         
-        function toggleSimpleMode() {
-            const button = document.querySelector('[onclick="toggleSimpleMode()"]');
-            isSimpleMode = !isSimpleMode;
+        // 切换显示模式
+        document.getElementById('toggleAllBtn').addEventListener('click', function() {
+            const container = document.querySelector('.screen-container');
+            const isGrid = container.style.display !== 'flex';
             
-            if (isSimpleMode) {
-                button.classList.add('active');
+            if (isGrid) {
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+                container.style.alignItems = 'center';
+                this.innerHTML = '<i class="fas fa-th-large"></i> 网格视图';
             } else {
-                button.classList.remove('active');
+                container.style.display = 'grid';
+                this.innerHTML = '<i class="fas fa-list"></i> 列表视图';
             }
-            
-            const frame = document.getElementById('screenFrame');
-            try {
-                if (isSimpleMode) {
-                    // 添加简化模式样式
-                    let style = frame.contentDocument.createElement('style');
-                    style.id = 'simple-mode-style';
-                    style.textContent = `
-                        .item-meta, .item-tags, .feature-desc, .setting-desc { display: none !important; }
-                        .item-title, .feature-title, .section-title, h1, h2 { font-size: 24px !important; }
-                        button, .btn-primary, .decision-button { height: 56px !important; font-size: 20px !important; }
-                        .tab-item i { font-size: 28px !important; }
-                        .tab-item span { font-size: 14px !important; }
-                        .tab-bar { height: 90px !important; }
-                        .decision-buttons { flex-direction: column !important; gap: 10px !important; }
-                        .decision-button { width: 100% !important; }
-                    `;
-                    frame.contentDocument.head.appendChild(style);
-                } else {
-                    // 移除简化模式样式
-                    let style = frame.contentDocument.getElementById('simple-mode-style');
-                    if (style) style.remove();
-                }
-            } catch (e) {
-                console.error('无法访问iframe内容:', e);
-            }
-        }
+        });
         
-        function toggleVoiceAssistant() {
-            const button = document.querySelector('[onclick="toggleVoiceAssistant()"]');
-            isVoiceAssistant = !isVoiceAssistant;
+        // 演示模式
+        document.getElementById('presentationBtn').addEventListener('click', function() {
+            const frames = document.querySelectorAll('.iphone-frame');
+            frames.forEach(frame => {
+                frame.style.width = frame.style.width === '500px' ? '320px' : '500px';
+                frame.style.height = frame.style.height === '900px' ? '650px' : '900px';
+            });
             
-            if (isVoiceAssistant) {
-                button.classList.add('active');
-                // 这里应该是实际的语音助手代码
-                alert('语音辅助已启用，点击页面元素将朗读其内容');
-            } else {
-                button.classList.remove('active');
-                alert('语音辅助已关闭');
-            }
-        }
+            this.innerHTML = this.innerHTML.includes('演示模式') 
+                ? '<i class="fas fa-compress-alt"></i> 退出演示'
+                : '<i class="fas fa-play"></i> 演示模式';
+        });
+        
+        // 导航选项卡
+        document.querySelectorAll('.screen-nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.screen-nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                
+                // 添加当前活动状态
+                this.classList.add('active');
+                
+                const screenType = this.getAttribute('data-screen');
+                const wrappers = document.querySelectorAll('.phone-wrapper');
+                
+                wrappers.forEach(wrapper => {
+                    if (screenType === 'all') {
+                        wrapper.classList.remove('hidden');
+                        wrapper.classList.add('fade-in');
+                    } else {
+                        if (wrapper.getAttribute('data-screen-type') === screenType) {
+                            wrapper.classList.remove('hidden');
+                            wrapper.classList.add('fade-in');
+                        } else {
+                            wrapper.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+        });
+        
+        // 悬停效果增强
+        document.querySelectorAll('.phone-wrapper').forEach(wrapper => {
+            wrapper.addEventListener('mouseenter', function() {
+                this.querySelector('.iphone-frame').style.transform = 'scale(1.03)';
+            });
+            
+            wrapper.addEventListener('mouseleave', function() {
+                this.querySelector('.iphone-frame').style.transform = 'scale(1)';
+            });
+        });
     </script>
 </body>
 </html>
