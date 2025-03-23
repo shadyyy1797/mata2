@@ -3,516 +3,499 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物品管家 - 健康守护</title>
+    <title>健康守护系统 - 实时监控</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="vr-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #0C0F14;
-            color: #FFFFFF;
-            height: 100vh;
-            width: 100%;
-            overflow: hidden;
-            font-size: 16px;
-            line-height: 1.6;
+        :root {
+            --primary-color: #00b36d;
+            --primary-glow: rgba(0, 179, 109, 0.3);
+            --glass-bg: rgba(23, 26, 34, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --hologram-blue: #64ffda;
+            --health-green: #30D158;
+            --health-yellow: #FFD60A;
+            --health-red: #FF453A;
         }
-        
-        .status-bar {
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0C0F14, #1a1f2c);
+            color: #FFFFFF;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+        }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
-            padding: 14px 24px 0;
-            color: #FFFFFF;
-            font-size: 14px;
+            align-items: center;
         }
-        
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
+
+        .health-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--health-green);
+            animation: pulse 2s infinite;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
             left: 0;
             right: 0;
-            height: 83px;
-            background-color: rgba(23, 26, 34, 0.9);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid #2E3138;
-            padding-bottom: 20px;
-            z-index: 100;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(100, 255, 218, 0.05), transparent);
+            animation: gradient-shift 3s ease infinite;
         }
-        
-        .tab-item {
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: #9599A8;
-            width: 20%;
+            justify-content: space-between;
         }
-        
-        .tab-item.active {
-            color: #00b36d;
-        }
-        
-        .tab-item i {
-            font-size: 22px;
-            margin-bottom: 3px;
-        }
-        
-        .content-area {
-            height: calc(100vh - 127px);
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-        
-        .page-header {
-            margin-bottom: 24px;
-        }
-        
-        .page-title {
-            font-size: 28px;
+
+        .metric-value {
+            font-size: 24px;
             font-weight: 700;
-            color: #FFFFFF;
+            color: var(--hologram-blue);
+            margin: 10px 0;
         }
-        
-        .tabs {
-            display: flex;
-            background-color: #1F232D;
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px 0;
+
+        .metric-label {
             font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .trend-up {
+            color: var(--health-red);
+        }
+
+        .trend-down {
+            color: var(--health-green);
+        }
+
+        .hologram-button {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
             border-radius: 10px;
-            color: #9599A8;
-            transition: all 0.2s;
+            color: var(--hologram-blue);
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hologram-button:hover {
+            background: rgba(100, 255, 218, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert {
+            background: rgba(255, 69, 58, 0.1);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            color: #FF453A;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .chart-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: 
+                linear-gradient(to right, rgba(23, 26, 34, 0.2), transparent 10%, transparent 90%, rgba(23, 26, 34, 0.2)),
+                linear-gradient(to bottom, rgba(23, 26, 34, 0.2), transparent 10%, transparent 90%, rgba(23, 26, 34, 0.2));
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, 
+                transparent, 
+                var(--hologram-blue),
+                transparent
+            );
+            animation: scan 3s linear infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* 页面特定样式 */
+        .health-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
         }
         
-        .tab.active {
-            background-color: #00b36d;
-            color: #FFFFFF;
-            font-weight: 500;
-            box-shadow: 0 4px 8px rgba(0, 179, 109, 0.25);
+        .health-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .health-status {
+            display: flex;
+            align-items: center;
+        }
+        
+        .health-chart {
+            height: 250px;
+            margin: 30px 0;
+        }
+        
+        .health-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
         }
         
         .metric-card {
-            background-color: #171A22;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: 1px solid #2E3138;
-        }
-        
-        .metric-header {
+            height: 150px;
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .metric-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #FFFFFF;
-        }
-        
-        .metric-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            background-color: rgba(0, 179, 109, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #00b36d;
-            font-size: 20px;
         }
         
         .metric-value {
             font-size: 32px;
             font-weight: 700;
-            margin-bottom: 4px;
-            color: #FFFFFF;
+            margin: 15px 0;
         }
         
-        .metric-description {
-            font-size: 14px;
-            color: #9599A8;
-        }
-        
-        .metric-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .metric-col {
-            flex: 1;
-        }
-        
-        .behavior-card {
-            background-color: #171A22;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            border: 1px solid #2E3138;
-        }
-        
-        .behavior-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 25px;
-            background-color: rgba(0, 179, 109, 0.15);
+        .trend {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #00b36d;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        
-        .behavior-content {
-            flex: 1;
-        }
-        
-        .behavior-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #FFFFFF;
-        }
-        
-        .behavior-description {
             font-size: 14px;
-            color: #9599A8;
-            margin-bottom: 10px;
-        }
-        
-        .behavior-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #9599A8;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-right: 5px;
-            background-color: rgba(0, 179, 109, 0.15);
-            color: #00b36d;
-        }
-        
-        .badge-warning {
-            background-color: rgba(255, 159, 10, 0.15);
-            color: #FF9F0A;
-        }
-        
-        .badge-danger {
-            background-color: rgba(255, 69, 58, 0.15);
-            color: #FF453A;
-        }
-        
-        .emergency-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
-            background-color: rgba(255, 69, 58, 0.9);
-            color: #FFFFFF;
-            font-size: 18px;
-            font-weight: 600;
-            box-shadow: 0 8px 16px rgba(255, 69, 58, 0.25);
             margin-top: 10px;
-            margin-bottom: 30px;
         }
         
-        .section-title {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            margin-top: 24px;
-            color: #FFFFFF;
+        .trend-up {
+            color: var(--health-red);
         }
         
-        .hidden {
-            display: none;
+        .trend-down {
+            color: var(--health-green);
         }
         
-        /* 适老化增强样式 */
-        *:focus {
-            outline: 3px solid #00b36d;
-            outline-offset: 2px;
-        }
-        
-        /* 增加触摸反馈 */
-        .emergency-button:active,
-        .behavior-card:active,
-        .tab:active {
-            transform: scale(0.98);
-            opacity: 0.9;
+        .health-footer {
+            margin-top: 40px;
         }
     </style>
 </head>
 <body>
-    <!-- iOS Status Bar -->
-    <div class="status-bar">
-        <div>9:41</div>
-        <div>
-            <span><i class="fas fa-signal"></i></span>
-            <span style="margin-left: 5px;"><i class="fas fa-wifi"></i></span>
-            <span style="margin-left: 5px;"><i class="fas fa-battery-full"></i></span>
-        </div>
+    <div class="container">
+        <header class="header">
+            <div class="health-status">
+                <div class="status-indicator"></div>
+                <h1>健康状态监测</h1>
+            </div>
+            <button class="hologram-button">
+                <i class="fas fa-sync-alt"></i>
+                刷新数据
+            </button>
+        </header>
+
+        <main class="main-content">
+            <div class="chart-container">
+                <h2>24小时活动分析</h2>
+                <canvas id="activityChart"></canvas>
+                <div class="chart-overlay"></div>
+                <div class="scan-line"></div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-label">室内温度</div>
+                    <div class="metric-value">24.5°C</div>
+                    <div class="trend-indicator">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>较昨日+1.2°C</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">空气质量</div>
+                    <div class="metric-value">优</div>
+                    <div class="trend-indicator">
+                        <i class="fas fa-check-circle" style="color: var(--health-green);"></i>
+                        <span>PM2.5: 35</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">活动频率</div>
+                    <div class="metric-value">正常</div>
+                    <div class="trend-indicator">
+                        <i class="fas fa-arrow-down trend-down"></i>
+                        <span>较昨日-5%</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">睡眠质量</div>
+                    <div class="metric-value">7.5h</div>
+                    <div class="trend-indicator">
+                        <i class="fas fa-arrow-up" style="color: var(--health-green);"></i>
+                        <span>较昨日+0.5h</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>建议开窗通风，室内CO2浓度略高</span>
+            </div>
+            <button class="hologram-button">
+                <i class="fas fa-phone-alt"></i>
+                紧急求助
+            </button>
+        </footer>
     </div>
 
-    <div class="content-area">
-        <div class="page-header">
-            <div class="page-title">健康守护</div>
-        </div>
-        
-        <div class="tabs">
-            <div class="tab active">环境指标</div>
-            <div class="tab">行为分析</div>
-            <div class="tab">健康报告</div>
-        </div>
-        
-        <!-- 环境指标部分 -->
-        <div id="env-indicators">
-            <div class="section-title">当前环境指标</div>
-            
-            <div class="metric-row">
-                <div class="metric-col">
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">室内温度</div>
-                            <div class="metric-icon">
-                                <i class="fas fa-thermometer-half"></i>
-                            </div>
-                        </div>
-                        <div class="metric-value">24.5°C</div>
-                        <div class="metric-description">适宜温度范围: 22-26°C</div>
-                    </div>
-                </div>
-                
-                <div class="metric-col">
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">室内湿度</div>
-                            <div class="metric-icon" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
-                                <i class="fas fa-tint"></i>
-                            </div>
-                        </div>
-                        <div class="metric-value">45%</div>
-                        <div class="metric-description">适宜湿度范围: 40-60%</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="metric-row">
-                <div class="metric-col">
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">空气质量</div>
-                            <div class="metric-icon" style="background-color: rgba(255, 159, 10, 0.15); color: #FF9F0A;">
-                                <i class="fas fa-wind"></i>
-                            </div>
-                        </div>
-                        <div class="metric-value">87</div>
-                        <div class="metric-description">
-                            <span class="badge badge-warning">轻度污染</span>
-                            建议开窗通风
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metric-col">
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-title">噪音水平</div>
-                            <div class="metric-icon" style="background-color: rgba(255, 69, 58, 0.15); color: #FF453A;">
-                                <i class="fas fa-volume-up"></i>
-                            </div>
-                        </div>
-                        <div class="metric-value">38dB</div>
-                        <div class="metric-description">安静环境 (低于45dB)</div>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="emergency-button">
-                <i class="fas fa-exclamation-triangle"></i>
-                紧急呼叫求助
-            </button>
-        </div>
-        
-        <!-- 行为分析部分 -->
-        <div id="behavior-analysis" class="hidden">
-            <div class="section-title">今日行为分析</div>
-            
-            <div class="behavior-card">
-                <div class="behavior-icon">
-                    <i class="fas fa-walking"></i>
-                </div>
-                <div class="behavior-content">
-                    <div class="behavior-title">移动距离减少</div>
-                    <div class="behavior-description">与昨日相比，室内走动距离减少了40%，可能需要适当增加活动</div>
-                    <div class="behavior-meta">
-                        <div>
-                            <span class="badge badge-warning">需要注意</span>
-                        </div>
-                        <div>10:30 检测</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="behavior-card">
-                <div class="behavior-icon" style="background-color: rgba(94, 92, 230, 0.15); color: #5E5CE6;">
-                    <i class="fas fa-bed"></i>
-                </div>
-                <div class="behavior-content">
-                    <div class="behavior-title">睡眠质量良好</div>
-                    <div class="behavior-description">昨晚睡眠时间7.5小时，深度睡眠占比35%，睡眠质量良好</div>
-                    <div class="behavior-meta">
-                        <div>
-                            <span class="badge">状态良好</span>
-                        </div>
-                        <div>08:15 检测</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="behavior-card">
-                <div class="behavior-icon" style="background-color: rgba(255, 69, 58, 0.15); color: #FF453A;">
-                    <i class="fas fa-shower"></i>
-                </div>
-                <div class="behavior-content">
-                    <div class="behavior-title">洗漱活动延迟</div>
-                    <div class="behavior-description">今早洗漱活动较往常延迟了45分钟，请注意日常习惯的改变</div>
-                    <div class="behavior-meta">
-                        <div>
-                            <span class="badge badge-danger">需要关注</span>
-                        </div>
-                        <div>09:45 检测</div>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="emergency-button">
-                <i class="fas fa-exclamation-triangle"></i>
-                紧急呼叫求助
-            </button>
-        </div>
-        
-        <!-- 健康报告部分 -->
-        <div id="health-reports" class="hidden">
-            <div class="section-title">健康状况汇总</div>
-            
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title">本周健康评分</div>
-                    <div class="metric-icon">
-                        <i class="fas fa-heartbeat"></i>
-                    </div>
-                </div>
-                <div class="metric-value">85/100</div>
-                <div class="metric-description">较上周 <i class="fas fa-arrow-up" style="color: #00b36d;"></i> 5分</div>
-            </div>
-            
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title">健康趋势分析</div>
-                </div>
-                <div style="height: 120px; display: flex; align-items: center; justify-content: center; color: #9599A8;">
-                    <i class="fas fa-chart-line" style="font-size: 48px; margin-right: 15px;"></i>
-                    <div>健康曲线趋势图</div>
-                </div>
-            </div>
-            
-            <div class="behavior-card">
-                <div class="behavior-icon" style="background-color: rgba(0, 179, 109, 0.15); color: #00b36d;">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <div class="behavior-content">
-                    <div class="behavior-title">健康建议</div>
-                    <div class="behavior-description">
-                        1. 每天保持30分钟以上的适度活动<br>
-                        2. 注意调整室内空气质量<br>
-                        3. 保持规律的生活作息
-                    </div>
-                </div>
-            </div>
-            
-            <button class="emergency-button">
-                <i class="fas fa-exclamation-triangle"></i>
-                紧急呼叫求助
-            </button>
-        </div>
-    </div>
-    
-    <!-- iOS Tab Bar -->
-    <div class="tab-bar">
-        <a href="home.html" class="tab-item">
-            <i class="fas fa-home"></i>
-            <span>首页</span>
-        </a>
-        <a href="space.html" class="tab-item">
-            <i class="fas fa-cubes"></i>
-            <span>空间</span>
-        </a>
-        <a href="items.html" class="tab-item">
-            <i class="fas fa-box"></i>
-            <span>物品</span>
-        </a>
-        <a href="community.html" class="tab-item">
-            <i class="fas fa-users"></i>
-            <span>社区</span>
-        </a>
-        <a href="profile.html" class="tab-item active">
-            <i class="fas fa-user"></i>
-            <span>我的</span>
-        </a>
-    </div>
-
+    <script src="vr-nav.js"></script>
     <script>
-        // 简单的标签切换逻辑
-        document.querySelectorAll('.tab').forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                // 移除所有活动状态
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                // 添加当前活动状态
-                tab.classList.add('active');
-                
-                // 隐藏所有内容区域
-                document.getElementById('env-indicators').classList.add('hidden');
-                document.getElementById('behavior-analysis').classList.add('hidden');
-                document.getElementById('health-reports').classList.add('hidden');
-                
-                // 显示当前选中的内容区域
-                if (index === 0) {
-                    document.getElementById('env-indicators').classList.remove('hidden');
-                } else if (index === 1) {
-                    document.getElementById('behavior-analysis').classList.remove('hidden');
-                } else if (index === 2) {
-                    document.getElementById('health-reports').classList.remove('hidden');
+        // 初始化活动分析图表
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                datasets: [{
+                    label: '24小时活动分析',
+                    data: [5, 10, 15, 40, 45, 35, 25, 15],
+                    borderColor: 'rgba(100, 255, 218, 1)',
+                    backgroundColor: 'rgba(100, 255, 218, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgba(100, 255, 218, 1)',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(23, 26, 34, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(100, 255, 218, 0.3)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 50,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    }
                 }
+            }
+        });
+        
+        // 模拟实时数据更新
+        function simulateRealTimeData() {
+            // 获取最后一个数据点
+            const lastDataPoint = activityChart.data.datasets[0].data[activityChart.data.datasets[0].data.length - 1];
+            
+            // 生成在合理范围内的随机变化
+            const change = Math.random() * 10 - 5;
+            let newDataPoint = lastDataPoint + change;
+            
+            // 确保数据在合理范围内 (0-50)
+            newDataPoint = Math.min(Math.max(newDataPoint, 0), 50);
+            
+            // 将新数据点添加到图表中，并移除第一个点保持数据量不变
+            activityChart.data.datasets[0].data.push(newDataPoint);
+            activityChart.data.datasets[0].data.shift();
+            
+            // 更新图表
+            activityChart.update();
+            
+            // 随机更新一个指标
+            updateRandomMetric();
+        }
+        
+        // 更新随机指标
+        function updateRandomMetric() {
+            const metrics = [
+                { selector: '.indoor-temp', suffix: '°C', min: 22, max: 28 },
+                { selector: '.air-quality', suffix: '', min: 85, max: 95 },
+                { selector: '.activity-freq', suffix: '/h', min: 5, max: 15 },
+                { selector: '.sleep-quality', suffix: 'h', min: 6.5, max: 8.5 }
+            ];
+            
+            // 随机选择一个指标
+            const randomMetric = metrics[Math.floor(Math.random() * metrics.length)];
+            const metricElement = document.querySelector(randomMetric.selector);
+            
+            if (metricElement) {
+                // 获取当前值 (移除后缀)
+                const currentValue = parseFloat(metricElement.textContent);
+                
+                // 生成在合理范围内的随机变化 (±5%)
+                const change = (Math.random() * 10 - 5) / 100;
+                let newValue = currentValue * (1 + change);
+                
+                // 确保在最小和最大值之间
+                newValue = Math.min(Math.max(newValue, randomMetric.min), randomMetric.max);
+                
+                // 格式化值 (保留一位小数)
+                const formattedValue = newValue.toFixed(1) + randomMetric.suffix;
+                
+                // 使用动画效果更新值
+                updateDataWithEffect(metricElement, formattedValue);
+                
+                // 更新趋势指示器
+                const trendIndicator = metricElement.nextElementSibling;
+                if (trendIndicator) {
+                    const trendIcon = trendIndicator.querySelector('i');
+                    const trendText = trendIndicator.querySelector('span');
+                    
+                    if (newValue > currentValue) {
+                        trendIcon.className = 'fas fa-arrow-up';
+                        trendIcon.style.color = 'var(--health-green)';
+                        trendText.textContent = `较前值 +${(newValue - currentValue).toFixed(1)}${randomMetric.suffix}`;
+                    } else {
+                        trendIcon.className = 'fas fa-arrow-down';
+                        trendIcon.style.color = 'var(--health-red)';
+                        trendText.textContent = `较前值 ${(newValue - currentValue).toFixed(1)}${randomMetric.suffix}`;
+                    }
+                }
+            }
+        }
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 每10秒模拟一次实时数据更新
+            setInterval(simulateRealTimeData, 10000);
+            
+            // 添加紧急求助按钮效果
+            document.querySelector('.footer .hologram-button').addEventListener('click', function() {
+                alert('紧急求助功能已激活，正在联系家人...');
             });
         });
     </script>
