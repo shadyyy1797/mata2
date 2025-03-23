@@ -5,28 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR/VR物品管理系统 - 界面预览</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="vr-styles.css">
     <style>
-        :root {
-            --primary-color: #64ffda;
-            --primary-glow: rgba(100, 255, 218, 0.3);
-            --glass-bg: rgba(23, 26, 34, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-        
-        body {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0C0F14, #1a1f2c);
-            color: #fff;
-            padding: 20px;
-            margin: 0;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        
         .header {
             text-align: center;
             margin-bottom: 40px;
             position: relative;
+            padding-top: 30px;
         }
         
         h1 {
@@ -75,6 +60,7 @@
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 30px;
             margin-bottom: 50px;
+            padding: 0 20px;
         }
         
         .screen-card {
@@ -305,6 +291,34 @@
             transform: scale(1.1);
         }
         
+        /* Row View Style */
+        .row-view {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        
+        .row-view .screen-card {
+            display: flex;
+            height: 220px;
+        }
+        
+        .row-view .screen-preview {
+            width: 100px;
+            height: 100%;
+            aspect-ratio: auto;
+        }
+        
+        .row-view .screen-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+        }
+        
         /* Responsive */
         @media (max-width: 991px) {
             .modal-content {
@@ -334,6 +348,9 @@
     </style>
 </head>
 <body>
+    <div class="grid-overlay"></div>
+    <div class="scan-line"></div>
+    
     <div class="header">
         <h1>AR/VR物品管理系统</h1>
         <p>所有界面预览 - 点击卡片查看详情</p>
@@ -377,6 +394,7 @@
         </div>
     </div>
     
+    <script src="vr-nav.js"></script>
     <script>
         // 界面数据
         const screens = [
@@ -414,6 +432,16 @@
                 title: "个人设置",
                 filename: "profile.html",
                 description: "用户个人资料和系统设置界面，包含账号安全、消息通知、隐私设置等功能模块。支持设置紧急联系人、深色模式切换和语言选择，界面设计符合老年人使用习惯。"
+            },
+            {
+                title: "项目总结",
+                filename: "summary.html",
+                description: "展示AR/VR物品管理系统的整体架构和功能模块，包含系统概述、模块说明和技术亮点。通过图表和卡片直观呈现系统各个部分，帮助用户全面了解系统设计理念。"
+            },
+            {
+                title: "界面总览",
+                filename: "overview.html",
+                description: "横向布局的界面总览页面，允许用户一次查看所有界面。支持横向/纵向布局切换和面板聚焦，为用户提供系统界面的全景视图，便于比较不同功能区的界面设计。"
             }
         ];
         
@@ -536,37 +564,6 @@
                 container.className = 'row-view';
                 rowToggle.classList.add('active');
                 gridToggle.classList.remove('active');
-                
-                // 添加行视图样式
-                document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    .row-view {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 30px;
-                    }
-                    
-                    .row-view .screen-card {
-                        display: flex;
-                        height: 220px;
-                    }
-                    
-                    .row-view .screen-preview {
-                        width: 100px;
-                        height: 100%;
-                        aspect-ratio: auto;
-                    }
-                    
-                    .row-view .screen-info {
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: flex-start;
-                        text-align: left;
-                    }
-                </style>
-                `);
             });
         }
     </script>
