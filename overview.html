@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR/VR物品管理系统 - 界面总览</title>
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0C0F14;
+            color: #fff;
+            padding: 20px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            min-width: 100vw;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #64ffda;
+        }
+        
+        .screens-container {
+            display: flex;
+            gap: 20px;
+            padding-bottom: 20px;
+            min-width: max-content;
+        }
+        
+        .screen {
+            flex: 0 0 auto;
+            width: 390px;
+            height: 844px;
+            border: 2px solid #64ffda;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .screen-title {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #64ffda;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .controls button {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            border: 1px solid rgba(100, 255, 218, 0.5);
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .controls button:hover {
+            background: rgba(100, 255, 218, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <h1>AR/VR物品管理系统界面总览</h1>
+    
+    <div class="screens-container">
+        <div class="screen">
+            <div class="screen-title">首页 (index.html)</div>
+            <iframe src="index.html"></iframe>
+        </div>
+        
+        <div class="screen">
+            <div class="screen-title">数据中心 (home.html)</div>
+            <iframe src="home.html"></iframe>
+        </div>
+        
+        <div class="screen">
+            <div class="screen-title">空间管理 (space.html)</div>
+            <iframe src="space.html"></iframe>
+        </div>
+        
+        <div class="screen">
+            <div class="screen-title">健康监测 (health.html)</div>
+            <iframe src="health.html"></iframe>
+        </div>
+        
+        <div class="screen">
+            <div class="screen-title">登录页面 (welcome.html)</div>
+            <iframe src="welcome.html"></iframe>
+        </div>
+        
+        <div class="screen">
+            <div class="screen-title">物品管理 (items.html)</div>
+            <iframe src="items.html"></iframe>
+        </div>
+        
+        <div class="screen">
+            <div class="screen-title">个人设置 (profile.html)</div>
+            <iframe src="profile.html"></iframe>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="scrollScreens(-390)">◀ 上一个</button>
+        <button onclick="scrollScreens(390)">下一个 ▶</button>
+    </div>
+    
+    <script>
+        function scrollScreens(offset) {
+            const container = document.querySelector('.screens-container');
+            container.scrollBy({ left: offset, behavior: 'smooth' });
+        }
+        
+        // 添加键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                scrollScreens(-390);
+            } else if (e.key === 'ArrowRight') {
+                scrollScreens(390);
+            }
+        });
+    </script>
+</body>
+</html> 

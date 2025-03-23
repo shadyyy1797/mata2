@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR/VR物品管理系统 - 界面预览</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #64ffda;
+            --primary-glow: rgba(100, 255, 218, 0.3);
+            --glass-bg: rgba(23, 26, 34, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0C0F14, #1a1f2c);
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 15px var(--primary-glow);
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px;
+            width: fit-content;
+            margin: 0 auto;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .view-toggle button {
+            background: transparent;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-toggle button.active {
+            background: var(--primary-color);
+            color: #0C0F14;
+            text-shadow: none;
+        }
+        
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .screen-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .screen-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .screen-card:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 0%,
+                rgba(100, 255, 218, 0.05) 50%,
+                transparent 100%
+            );
+            animation: hologram-scan 8s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes hologram-scan {
+            0% {
+                transform: translateX(-50%) translateY(-50%) rotate(0deg);
+            }
+            100% {
+                transform: translateX(-50%) translateY(-50%) rotate(360deg);
+            }
+        }
+        
+        .screen-preview {
+            width: 100%;
+            aspect-ratio: 9/16;
+            pointer-events: none;
+            object-fit: cover;
+            object-position: top;
+            transform: scale(0.98);
+            transition: all 0.5s ease;
+            filter: brightness(0.9);
+            border-radius: 12px;
+            margin-top: 6px;
+        }
+        
+        .screen-card:hover .screen-preview {
+            transform: scale(1);
+            filter: brightness(1.1);
+        }
+        
+        .screen-info {
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .screen-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .screen-filename {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            display: flex;
+            position: relative;
+            width: 80%;
+            height: 90%;
+            max-width: 1600px;
+        }
+        
+        .modal-preview {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-iframe {
+            width: 390px;
+            height: 844px;
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            box-shadow: 0 0 30px var(--primary-glow);
+            overflow: hidden;
+            background: #fff;
+        }
+        
+        .modal-info {
+            width: 300px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid var(--glass-border);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .modal-filename {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+        }
+        
+        .modal-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+        
+        .modal-button {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            border-radius: 12px;
+            color: var(--primary-color);
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .modal-button:hover {
+            background: rgba(100, 255, 218, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 32px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            transform: scale(1.1);
+            color: var(--primary-color);
+        }
+        
+        .nav-buttons {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .nav-button {
+            background: rgba(23, 26, 34, 0.7);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            border: 1px solid var(--glass-border);
+            pointer-events: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-button:hover {
+            background: rgba(100, 255, 218, 0.2);
+            color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 991px) {
+            .modal-content {
+                flex-direction: column;
+                width: 90%;
+                height: auto;
+                max-height: 90%;
+            }
+            
+            .modal-preview {
+                height: 70vh;
+            }
+            
+            .modal-iframe {
+                width: 320px;
+                height: 691px;
+            }
+            
+            .modal-info {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--glass-border);
+                padding: 15px;
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AR/VR物品管理系统</h1>
+        <p>所有界面预览 - 点击卡片查看详情</p>
+        
+        <div class="view-toggle">
+            <button id="grid-toggle" class="active">网格视图</button>
+            <button id="row-toggle">行视图</button>
+        </div>
+    </div>
+    
+    <div class="grid-view" id="screens-container">
+        <!-- 屏幕卡片将通过JavaScript动态生成 -->
+    </div>
+    
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <div class="modal-preview">
+                <iframe class="modal-iframe" id="modal-iframe" src=""></iframe>
+                
+                <div class="nav-buttons">
+                    <div class="nav-button" id="prev-screen">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="nav-button" id="next-screen">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-info">
+                <h2 class="modal-title" id="modal-title"></h2>
+                <div class="modal-filename" id="modal-filename"></div>
+                <div class="modal-description" id="modal-description"></div>
+                <button class="modal-button" id="open-fullscreen">全屏查看</button>
+                <button class="modal-button" id="view-code">查看源代码</button>
+            </div>
+            
+            <button class="close-modal" id="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 界面数据
+        const screens = [
+            {
+                title: "首页",
+                filename: "index.html",
+                description: "AR/VR系统的欢迎页面，展示了系统的主要功能模块。包含粒子动画背景、3D卡片效果和动态悬浮效果。用户可以从这里进入系统的各个功能区域。"
+            },
+            {
+                title: "数据中心",
+                filename: "home.html",
+                description: "系统的主数据面板，展示了物品管理的各项关键指标，包括空间利用率、智能物品追踪、实时监控和AI预测准确率。界面使用了全息效果和3D悬浮卡片，实现了VR风格的数据可视化。"
+            },
+            {
+                title: "空间管理",
+                filename: "space.html",
+                description: "三维空间可视化界面，用于监控和管理居住环境中的物品分布。集成了Three.js实现3D渲染，支持交互式物体标记和风险区域标识。用户可以查看空间利用率和物品分类详情。"
+            },
+            {
+                title: "健康监测",
+                filename: "health.html",
+                description: "老年人健康数据监测界面，包含24小时活动分析图表和各项健康指标的实时监控。通过Chart.js实现数据可视化，支持趋势分析和动态数据更新。界面底部还包含紧急求助功能。"
+            },
+            {
+                title: "登录页面",
+                filename: "welcome.html",
+                description: "系统的登录入口，设计了适合老年人使用的界面，包括大字体、清晰的视觉反馈和简化的交互流程。支持多种登录方式，包括传统账号密码、指纹识别和第三方登录。"
+            },
+            {
+                title: "物品管理",
+                filename: "items.html",
+                description: "物品详细管理界面，展示待决策物品和最近建档物品。每个物品卡片包含详细信息、情感值评分和决策按钮。支持物品搜索、分类筛选和语音控制，专为老年人设计了简化模式。"
+            },
+            {
+                title: "个人设置",
+                filename: "profile.html",
+                description: "用户个人资料和系统设置界面，包含账号安全、消息通知、隐私设置等功能模块。支持设置紧急联系人、深色模式切换和语言选择，界面设计符合老年人使用习惯。"
+            }
+        ];
+        
+        // 当前显示的屏幕索引
+        let currentScreenIndex = 0;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('screens-container');
+            
+            // 生成屏幕卡片
+            screens.forEach((screen, index) => {
+                const card = document.createElement('div');
+                card.className = 'screen-card';
+                card.innerHTML = `
+                    <iframe class="screen-preview" src="${screen.filename}"></iframe>
+                    <div class="screen-info">
+                        <div class="screen-title">${screen.title}</div>
+                        <div class="screen-filename">${screen.filename}</div>
+                    </div>
+                `;
+                
+                // 添加点击事件
+                card.addEventListener('click', () => {
+                    openModal(index);
+                });
+                
+                container.appendChild(card);
+            });
+            
+            // 初始化模态框控制
+            initModal();
+            
+            // 初始化视图切换
+            initViewToggle();
+        });
+        
+        // 初始化模态框
+        function initModal() {
+            const modal = document.getElementById('modal');
+            const closeModal = document.getElementById('close-modal');
+            const prevScreen = document.getElementById('prev-screen');
+            const nextScreen = document.getElementById('next-screen');
+            const openFullscreen = document.getElementById('open-fullscreen');
+            const viewCode = document.getElementById('view-code');
+            
+            // 关闭模态框
+            closeModal.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+            
+            // 上一个屏幕
+            prevScreen.addEventListener('click', () => {
+                currentScreenIndex = (currentScreenIndex - 1 + screens.length) % screens.length;
+                updateModal();
+            });
+            
+            // 下一个屏幕
+            nextScreen.addEventListener('click', () => {
+                currentScreenIndex = (currentScreenIndex + 1) % screens.length;
+                updateModal();
+            });
+            
+            // 键盘导航
+            document.addEventListener('keydown', (e) => {
+                if (!modal.classList.contains('active')) return;
+                
+                if (e.key === 'Escape') {
+                    modal.classList.remove('active');
+                } else if (e.key === 'ArrowLeft') {
+                    currentScreenIndex = (currentScreenIndex - 1 + screens.length) % screens.length;
+                    updateModal();
+                } else if (e.key === 'ArrowRight') {
+                    currentScreenIndex = (currentScreenIndex + 1) % screens.length;
+                    updateModal();
+                }
+            });
+            
+            // 全屏查看
+            openFullscreen.addEventListener('click', () => {
+                window.open(screens[currentScreenIndex].filename, '_blank');
+            });
+            
+            // 查看源代码
+            viewCode.addEventListener('click', () => {
+                // 在实际应用中，这里可以链接到GitHub源码或其他展示代码的方式
+                alert('此功能在实际部署后将链接到GitHub代码仓库');
+            });
+        }
+        
+        // 打开模态框
+        function openModal(index) {
+            currentScreenIndex = index;
+            updateModal();
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        // 更新模态框内容
+        function updateModal() {
+            const screen = screens[currentScreenIndex];
+            document.getElementById('modal-iframe').src = screen.filename;
+            document.getElementById('modal-title').textContent = screen.title;
+            document.getElementById('modal-filename').textContent = screen.filename;
+            document.getElementById('modal-description').textContent = screen.description;
+        }
+        
+        // 初始化视图切换
+        function initViewToggle() {
+            const gridToggle = document.getElementById('grid-toggle');
+            const rowToggle = document.getElementById('row-toggle');
+            const container = document.getElementById('screens-container');
+            
+            gridToggle.addEventListener('click', () => {
+                container.className = 'grid-view';
+                gridToggle.classList.add('active');
+                rowToggle.classList.remove('active');
+            });
+            
+            rowToggle.addEventListener('click', () => {
+                container.className = 'row-view';
+                rowToggle.classList.add('active');
+                gridToggle.classList.remove('active');
+                
+                // 添加行视图样式
+                document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    .row-view {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 30px;
+                    }
+                    
+                    .row-view .screen-card {
+                        display: flex;
+                        height: 220px;
+                    }
+                    
+                    .row-view .screen-preview {
+                        width: 100px;
+                        height: 100%;
+                        aspect-ratio: auto;
+                    }
+                    
+                    .row-view .screen-info {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: flex-start;
+                        text-align: left;
+                    }
+                </style>
+                `);
+            });
+        }
+    </script>
+</body>
+</html> 

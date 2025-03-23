@@ -101,9 +101,14 @@ function createNavBar() {
     
     const pages = [
         { name: '首页', icon: 'fa-home', target: 'index.html' },
-        { name: '数据中心', icon: 'fa-chart-pie', target: 'home.html' },
-        { name: '空间管理', icon: 'fa-cube', target: 'space.html' },
-        { name: '健康监测', icon: 'fa-heartbeat', target: 'health.html' }
+        { name: '数据', icon: 'fa-chart-bar', target: 'home.html' },
+        { name: '空间', icon: 'fa-cube', target: 'space.html' },
+        { name: '健康', icon: 'fa-heartbeat', target: 'health.html' },
+        { name: '物品', icon: 'fa-box', target: 'items.html' },
+        { name: '设置', icon: 'fa-cog', target: 'profile.html' },
+        { name: '预览', icon: 'fa-eye', target: 'preview.html' },
+        { name: '总结', icon: 'fa-project-diagram', target: 'summary.html' },
+        { name: '全景', icon: 'fa-columns', target: 'overview.html' }
     ];
     
     // 获取当前页面文件名
